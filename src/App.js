@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react'
+/* eslint-disable arrow-parens */
+import React, { useState, useEffect } from 'react'
 import { TaskList } from 'components/TaskList'
+import { TaskForm } from 'components/TaskForm'
 
 export const App = () => {
   const [taskList, setTaskList] = useState([]);
@@ -14,12 +16,43 @@ export const App = () => {
       .catch(error => console.error(error))
       .finally(() => setLoading(false));
   }
+
   useEffect(() => {
     fetchTasks();
   }, []);
+
+  const handleNewTodoChange = (event) => {
+    setNewTodo(event.target.value)
+  }
+  const onFormSubmit = (event) => {
+    event.preventDefault();
+
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        description: newTodo
+      })
+    }
+    fetch('https://week-7-backend.onrender.com/tasks', options)
+      // eslint-disable-next-line arrow-parens
+      .then(res => res.json())
+      .then(() => fetchTasks())
+      .finally(() => setNewTodo(''));
+  }
   return (
     <div>
-      <TaskList />
+      <TaskForm
+        newTodo={newTodo}
+        onNewToDoChange={handleNewTodoChange}
+        onFormSubmit={onFormSubmit} />
+      <TaskList
+        loading={loading}
+        taskList={taskList}
+        setTasklist={setTaskList} />
+
     </div>
   )
 }
